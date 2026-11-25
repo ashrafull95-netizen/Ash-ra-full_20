@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Mobile-first online Japanese Language Examination (JLPT &amp; JFT-Basic) with Student and Teacher role-based access, furigana toggle, spoken audio, and instant scoring.">
+  <title>日本語検定 | JLPT &amp; JFT-Basic Online Examination</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Global App Header -->
+    <header class="app-header">
+      <div class="header-inner">
+        <button type="button" class="brand" id="btn-brand-home" aria-label="Go to Home">
+          <span class="brand-seal" aria-hidden="true">試</span>
+          <span class="brand-text">
+            <span class="brand-jp" lang="ja">日本語試験ポータル</span>
+            <span class="brand-en">Nihongo Exam</span>
+          </span>
+        </button>
+
+        <div class="header-controls">
+          <button type="button" class="auth-badge-btn hidden" id="btn-header-account" aria-label="Account and Role">
+            <span class="auth-role-dot" id="header-role-dot"></span>
+            <span id="header-account-label">Student</span>
+          </button>
+          <button type="button" class="icon-pill" id="btn-furigana" aria-pressed="true" title="Toggle Furigana (Reading Aid)">
+            <span class="pill-jp" lang="ja">振り仮名</span>
+            <span class="pill-state" id="furigana-state">ON</span>
+          </button>
+          <button type="button" class="icon-btn" id="btn-history" aria-label="Exam History" title="Exam History">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <polyline points="12 7 12 12 15.5 14"></polyline>
+            </svg>
+          </button>
+          <button type="button" class="icon-btn" id="btn-theme" aria-label="Toggle Dark Mode" title="Toggle Theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"></circle>
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- VIEW 1: MAIN LANDING PAGE / EXAM SETUP -->
+    <main id="view-home" class="view view-active">
+      <div class="container">
+        <!-- Resume In-Progress Banner -->
+        <section id="resume-banner" class="resume-banner hidden" aria-live="polite">
+          <div class="resume-info">
+            <span class="resume-badge">In Progress</span>
+            <div>
+              <h2 id="resume-title">Unfinished Exam Saved</h2>
+              <p id="resume-meta">Continue where you left off.</p>
+            </div>
+          </div>
+          <div class="resume-actions">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-resume">Resume</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-discard-resume">Discard</button>
+          </div>
+        </section>
+
+        <!-- Hero + Role-Based Login -->
+        <section class="hero-card">
+          <div class="hero-content">
+            <span class="hero-eyebrow">Mobile-First Japanese Assessment</span>
+            <h1>JLPT &amp; JFT-Basic Online Examination</h1>
+            <p class="hero-subtitle">
+              Practice and take standardized Japanese proficiency tests with touch-friendly controls,
+              spoken audio comprehension, toggleable furigana, and instant diagnostic scoring.
+            </p>
+          </div>
+          <div class="hero-stats" id="home-stats">
+            <div class="stat-box">
+              <span class="stat-value" id="stat-attempts">0</span>
+              <span class="stat-label">Exams Taken</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-value" id="stat-best">--</span>
+              <span class="stat-label">Best Score</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-value" id="stat-passed">0</span>
+              <span class="stat-label">Passed</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Role-Based Login Section -->
+        <section class="setup-section" aria-labelledby="heading-role">
+          <div class="section-heading">
+            <span class="step-num">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </span>
+            <h2 id="heading-role">Role-Based Access</h2>
+          </div>
+
+          <!-- Logged-Out Role Selection Cards -->
+          <div id="role-login-grid" class="role-grid">
+            <button type="button" class="role-card" id="btn-role-student">
+              <div class="role-icon role-icon-student" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+              </div>
+              <div class="role-card-body">
+                <div class="role-card-top">
+                  <h3>Student Login</h3>
+                  <span class="role-chip">Examinee</span>
+                </div>
+                <p>Take JLPT or JFT-Basic exams, save progress, and review score reports.</p>
+              </div>
+              <span class="role-arrow" aria-hidden="true">›</span>
+            </button>
+
+            <button type="button" class="role-card" id="btn-role-teacher">
+              <div class="role-icon role-icon-teacher" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+                  <line x1="2" y1="20" x2="22" y2="20"></line>
+                  <line x1="8" y1="16" x2="16" y2="16"></line>
+                </svg>
+              </div>
+              <div class="role-card-body">
+                <div class="role-card-top">
+                  <h3>Teacher Login</h3>
+                  <span class="role-chip role-chip-teacher">Instructor</span>
+                </div>
+                <p>Add custom exam questions, manage test banks, and inspect student scores.</p>
+              </div>
+              <span class="role-arrow" aria-hidden="true">›</span>
+            </button>
+          </div>
+
+          <!-- Logged-In Active Role Bar -->
+          <div id="role-active-bar" class="role-active-bar hidden">
+            <div class="role-active-info">
+              <span class="role-active-badge" id="active-role-badge">STUDENT</span>
+              <div>
+                <strong id="active-user-name">Student Guest</strong>
+                <span class="role-active-sub" id="active-user-meta">Ready to take examinations</span>
+              </div>
+            </div>
+            <div class="role-active-actions">
+              <button type="button" class="btn btn-primary btn-sm hidden" id="btn-open-teacher-dash">Teacher Dashboard</button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-switch-role">Switch Role</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-logout">Sign Out</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Primary Exam Track Selection: JLPT Exam vs JFT-Basic Exam -->
+        <section class="setup-section" aria-labelledby="heading-track">
+          <div class="section-heading">
+            <span class="step-num">1</span>
+            <h2 id="heading-track">Choose Examination Track</h2>
+          </div>
+
+          <div class="track-grid" id="exam-track-grid" role="radiogroup" aria-label="Examination Track">
+            <button type="button" class="track-card selected" id="card-track-jlpt" data-track="jlpt" role="radio" aria-checked="true">
+              <div class="track-card-header">
+                <span class="track-seal" lang="ja">JLPT</span>
+                <span class="track-pill">N5 · N4 · N3</span>
+              </div>
+              <h3>JLPT Exam</h3>
+              <p class="track-jp" lang="ja">日本語能力試験</p>
+              <p class="track-desc">
+                Multi-level proficiency mock exams testing Vocabulary &amp; Kanji, Grammar, Reading, and Listening on a 180-point scale.
+              </p>
+              <div class="track-footer">
+                <span>3 Levels Available</span>
+                <span class="track-select-indicator">Selected ✓</span>
+              </div>
+            </button>
+
+            <button type="button" class="track-card" id="card-track-jft" data-track="jft" role="radio" aria-checked="false">
+              <div class="track-card-header">
+                <span class="track-seal track-seal-jft">JFT</span>
+                <span class="track-pill">CEFR A2</span>
+              </div>
+              <h3>JFT-Basic Exam</h3>
+              <p class="track-jp" lang="ja">国際交流基金日本語基礎テスト</p>
+              <p class="track-desc">
+                Practical everyday &amp; workplace communication assessment across Script &amp; Vocabulary, Conversation, Listening, and Reading (250-point scale).
+              </p>
+              <div class="track-footer">
+                <span>Pass Mark: 200 / 250</span>
+                <span class="track-select-indicator">Select</span>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <!-- Step 2: Level / Format Details -->
+        <section class="setup-section" id="jlpt-level-section" aria-labelledby="heading-level">
+          <div class="section-heading">
+            <span class="step-num">2</span>
+            <h2 id="heading-level">Select JLPT Level</h2>
+          </div>
+          <div class="level-grid" id="level-grid" role="radiogroup" aria-label="JLPT Level">
+            <!-- Populated dynamically -->
+          </div>
+        </section>
+
+        <section class="setup-section hidden" id="jft-info-section" aria-labelledby="heading-jft-info">
+          <div class="section-heading">
+            <span class="step-num">2</span>
+            <h2 id="heading-jft-info">JFT-Basic Test Specification</h2>
+          </div>
+          <div class="jft-overview-card" id="jft-overview-card">
+            <!-- Populated dynamically -->
+          </div>
+        </section>
+
+        <!-- Step 3: Mode & Section Scope -->
+        <section class="setup-section" aria-labelledby="heading-options">
+          <div class="section-heading">
+            <span class="step-num">3</span>
+            <h2 id="heading-options">Configure Mode &amp; Sections</h2>
+          </div>
+
+          <div class="config-grid">
+            <div class="config-card">
+              <h3>Examination Mode</h3>
+              <div class="segmented-options" role="radiogroup" aria-label="Examination Mode">
+                <button type="button" class="mode-option active" data-mode="exam" aria-checked="true">
+                  <span class="mode-title">Timed Mock Exam</span>
+                  <span class="mode-desc">Countdown timer, official-style scoring, answers revealed upon submission.</span>
+                </button>
+                <button type="button" class="mode-option" data-mode="study" aria-checked="false">
+                  <span class="mode-title">Study / Practice Mode</span>
+                  <span class="mode-desc">No timer pressure, instant answer feedback, explanations &amp; listening scripts.</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="config-card">
+              <h3>Section Focus</h3>
+              <div class="chip-group" id="section-filter-group" role="radiogroup" aria-label="Section Focus">
+                <!-- Populated dynamically per track -->
+              </div>
+
+              <div class="candidate-field">
+                <label for="candidate-name">Examinee Name <span class="optional-tag">(Auto-filled when signed in)</span></label>
+                <input type="text" id="candidate-name" maxlength="40" placeholder="e.g., Tanaka Yuki" autocomplete="name">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Start Exam Bar -->
+        <section class="start-bar">
+          <div class="start-summary" id="start-summary">
+            <strong id="summary-title">JLPT N5 Practice Exam</strong>
+            <span id="summary-meta">20 questions · 25 min · Timed Mock Exam</span>
+          </div>
+          <button type="button" class="btn btn-primary btn-lg" id="btn-start-exam">
+            <span>Begin Examination</span>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </section>
+      </div>
+    </main>
+
+    <!-- VIEW 2: ACTIVE EXAM -->
+    <main id="view-exam" class="view hidden" aria-live="off">
+      <div class="exam-topbar">
+        <div class="exam-topbar-inner">
+          <div class="exam-meta-left">
+            <span class="level-badge" id="exam-level-badge">N5</span>
+            <span class="section-label" id="exam-section-label">Vocabulary</span>
+          </div>
+
+          <div class="exam-timer-wrap" id="exam-timer-wrap">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <polyline points="12 7 12 12 15 14"></polyline>
+            </svg>
+            <span id="exam-timer">25:00</span>
+          </div>
+
+          <div class="exam-meta-right">
+            <button type="button" class="btn btn-outline btn-xs" id="btn-open-map">
+              <span id="question-counter">1 / 20</span>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+              </svg>
+            </button>
+            <button type="button" class="btn btn-danger-soft btn-xs" id="btn-finish-exam">Submit</button>
+          </div>
+        </div>
+        <div class="exam-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="exam-progress-bar">
+          <div class="exam-progress-fill" id="exam-progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="container exam-layout">
+        <div class="exam-main-col">
+          <article class="question-card" id="question-card">
+            <div class="question-card-header">
+              <div class="q-tags">
+                <span class="q-num-badge" id="q-num-badge">Question 1</span>
+                <span class="q-type-tag" id="q-type-tag">Kanji Reading</span>
+              </div>
+              <button type="button" class="flag-btn" id="btn-flag" aria-pressed="false" title="Flag question for review">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                  <line x1="4" y1="22" x2="4" y2="15"></line>
+                </svg>
+                <span>Flag</span>
+              </button>
+            </div>
+
+            <div id="passage-container" class="passage-box hidden">
+              <div class="passage-header">
+                <span class="passage-title" id="passage-title">Reading Passage</span>
+                <button type="button" class="btn-link" id="btn-toggle-passage">Collapse</button>
+              </div>
+              <div class="passage-body jp-text" id="passage-body" lang="ja"></div>
+            </div>
+
+            <div id="audio-container" class="audio-box hidden">
+              <div class="audio-controls-row">
+                <button type="button" class="audio-play-btn" id="btn-audio-play">
+                  <svg class="icon-play" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                    <polygon points="6 4 20 12 6 20 6 4"></polygon>
+                  </svg>
+                  <svg class="icon-stop hidden" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                    <rect x="6" y="6" width="12" height="12" rx="1"></rect>
+                  </svg>
+                  <span id="audio-play-label">Play Audio</span>
+                </button>
+                <div class="audio-meta">
+                  <button type="button" class="btn btn-outline btn-xs" id="btn-audio-speed" title="Playback Speed">1.0x</button>
+                  <span class="audio-replays" id="audio-replays">Replays: 2 left</span>
+                </div>
+              </div>
+              <div class="audio-visualizer" id="audio-visualizer" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <p class="audio-status-note" id="audio-status-note"></p>
+              <div class="audio-transcript-wrap">
+                <button type="button" class="btn-link" id="btn-audio-transcript">Show Audio Script</button>
+                <div id="audio-transcript-body" class="audio-transcript hidden jp-text" lang="ja"></div>
+              </div>
+            </div>
+
+            <p class="q-instruction" id="q-instruction"></p>
+            <div class="q-prompt jp-text" id="q-prompt" lang="ja"></div>
+
+            <div class="options-list" id="options-list" role="radiogroup" aria-label="Answer choices"></div>
+
+            <div id="study-feedback" class="study-feedback hidden" aria-live="polite">
+              <div class="feedback-header" id="study-feedback-header"></div>
+              <p class="feedback-explanation" id="study-feedback-text"></p>
+            </div>
+          </article>
+        </div>
+
+        <aside class="exam-sidebar" aria-label="Question Navigator">
+          <div class="sidebar-card">
+            <div class="sidebar-header">
+              <h3>Question Map</h3>
+              <span class="sidebar-counts" id="sidebar-counts">0/20 answered</span>
+            </div>
+            <div class="map-legend">
+              <span><i class="dot dot-answered"></i> Answered</span>
+              <span><i class="dot dot-flagged"></i> Flagged</span>
+              <span><i class="dot dot-empty"></i> Unanswered</span>
+            </div>
+            <div id="desktop-map-grid" class="map-grid-container"></div>
+            <button type="button" class="btn btn-primary btn-block" id="btn-sidebar-submit">Finish &amp; Score Exam</button>
+          </div>
+        </aside>
+      </div>
+
+      <nav class="exam-bottom-nav" aria-label="Question navigation">
+        <button type="button" class="btn btn-outline" id="btn-prev">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          <span>Previous</span>
+        </button>
+        <button type="button" class="btn btn-ghost btn-map-mid" id="btn-bottom-map">
+          <span id="bottom-map-text">Map</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-next">
+          <span id="btn-next-label">Next</span>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </nav>
+    </main>
+
+    <!-- VIEW 3: RESULTS & REVIEW -->
+    <main id="view-results" class="view hidden">
+      <div class="container">
+        <section class="result-hero" id="result-hero">
+          <div class="result-stamp" id="result-stamp">合格</div>
+          <div class="result-main">
+            <span class="result-eyebrow" id="result-level-label">JLPT N5 Examination Report</span>
+            <h1 id="result-headline">Congratulations! You Passed</h1>
+            <p class="result-meta" id="result-meta"></p>
+          </div>
+          <div class="result-score-circle">
+            <span class="score-big" id="result-scaled-score">145</span>
+            <span class="score-max" id="result-score-max">/ 180</span>
+            <span class="score-pct" id="result-pct">81%</span>
+          </div>
+        </section>
+
+        <section class="breakdown-grid" id="breakdown-grid" aria-label="Section score breakdown"></section>
+
+        <section class="review-section">
+          <div class="review-header">
+            <div>
+              <h2>Detailed Answer Review</h2>
+              <p class="review-subtitle">Inspect each question, your answer, and grammar/vocabulary explanations.</p>
+            </div>
+            <div class="review-actions">
+              <button type="button" class="btn btn-outline btn-sm" id="btn-print-result">Print Report</button>
+              <button type="button" class="btn btn-outline btn-sm" id="btn-retake">Retake</button>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-home">New Exam</button>
+            </div>
+          </div>
+
+          <div class="review-filters" id="review-filters" role="tablist" aria-label="Filter review questions">
+            <button type="button" class="filter-chip active" data-filter="all">All</button>
+            <button type="button" class="filter-chip" data-filter="incorrect">Incorrect</button>
+            <button type="button" class="filter-chip" data-filter="correct">Correct</button>
+            <button type="button" class="filter-chip" data-filter="flagged">Flagged</button>
+          </div>
+
+          <div id="review-list" class="review-list"></div>
+        </section>
+      </div>
+    </main>
+
+    <!-- VIEW 4: TEACHER DASHBOARD -->
+    <main id="view-teacher" class="view hidden">
+      <div class="container">
+        <section class="teacher-hero">
+          <div>
+            <span class="hero-eyebrow">Instructor Workspace</span>
+            <h1 id="teacher-welcome">Teacher Dashboard</h1>
+            <p class="hero-subtitle">Manage JLPT &amp; JFT-Basic question banks, create custom items, and review student performance.</p>
+          </div>
+          <div class="teacher-hero-actions">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-teacher-to-exams">Preview Exams</button>
+          </div>
+        </section>
+
+        <!-- Teacher Navigation Tabs -->
+        <div class="teacher-tabs" id="teacher-tabs" role="tablist">
+          <button type="button" class="filter-chip active" data-ttab="bank" role="tab" aria-selected="true">Question Bank</button>
+          <button type="button" class="filter-chip" data-ttab="create" role="tab" aria-selected="false">+ Add Question</button>
+          <button type="button" class="filter-chip" data-ttab="results" role="tab" aria-selected="false">Student Results</button>
+        </div>
+
+        <!-- Tab 1: Question Bank -->
+        <section id="teacher-tab-bank" class="teacher-panel">
+          <div class="teacher-toolbar">
+            <select id="teacher-filter-level" class="form-select" aria-label="Filter by Exam Level">
+              <option value="all">All Exams (JLPT &amp; JFT-Basic)</option>
+              <option value="N5">JLPT N5</option>
+              <option value="N4">JLPT N4</option>
+              <option value="N3">JLPT N3</option>
+              <option value="JFT-A2">JFT-Basic (A2)</option>
+            </select>
+            <span class="teacher-count-pill" id="teacher-bank-count">0 questions</span>
+          </div>
+          <div id="teacher-bank-list" class="teacher-list"></div>
+        </section>
+
+        <!-- Tab 2: Add Question -->
+        <section id="teacher-tab-create" class="teacher-panel hidden">
+          <form id="form-add-question" class="teacher-form">
+            <div class="form-row-2">
+              <div class="form-field">
+                <label for="tq-level">Target Exam</label>
+                <select id="tq-level" class="form-select" required>
+                  <option value="N5">JLPT N5</option>
+                  <option value="N4">JLPT N4</option>
+                  <option value="N3">JLPT N3</option>
+                  <option value="JFT-A2">JFT-Basic (A2)</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="tq-section">Section</label>
+                <select id="tq-section" class="form-select" required></select>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-field">
+                <label for="tq-type">Question Type Label</label>
+                <input type="text" id="tq-type" class="form-input" placeholder="e.g., Kanji Reading, Daily Expression" required>
+              </div>
+              <div class="form-field">
+                <label for="tq-answer">Correct Choice</label>
+                <select id="tq-answer" class="form-select" required>
+                  <option value="0">Option 1</option>
+                  <option value="1">Option 2</option>
+                  <option value="2">Option 3</option>
+                  <option value="3">Option 4</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="tq-instruction">Instruction (English)</label>
+              <input type="text" id="tq-instruction" class="form-input" value="Choose the best answer to complete the sentence." required>
+            </div>
+
+            <div class="form-field">
+              <label for="tq-prompt">Question Prompt (Japanese)</label>
+              <textarea id="tq-prompt" class="form-textarea jp-text" rows="2" placeholder="例：あした ともだちと えいがを ＿＿＿ いきます。" required></textarea>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-field">
+                <label for="tq-opt0">Option 1</label>
+                <input type="text" id="tq-opt0" class="form-input jp-text" required>
+              </div>
+              <div class="form-field">
+                <label for="tq-opt1">Option 2</label>
+                <input type="text" id="tq-opt1" class="form-input jp-text" required>
+              </div>
+              <div class="form-field">
+                <label for="tq-opt2">Option 3</label>
+                <input type="text" id="tq-opt2" class="form-input jp-text" required>
+              </div>
+              <div class="form-field">
+                <label for="tq-opt3">Option 4</label>
+                <input type="text" id="tq-opt3" class="form-input jp-text" required>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="tq-explanation">Explanation</label>
+              <textarea id="tq-explanation" class="form-textarea" rows="2" placeholder="Explain why the correct answer is right." required></textarea>
+            </div>
+
+            <div class="form-actions">
+              <span class="form-feedback" id="tq-feedback" aria-live="polite"></span>
+              <button type="submit" class="btn btn-primary">Save Question to Exam Bank</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Tab 3: Student Results -->
+        <section id="teacher-tab-results" class="teacher-panel hidden">
+          <div class="teacher-metrics" id="teacher-metrics"></div>
+          <div id="teacher-results-list" class="teacher-list"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: ROLE-BASED LOGIN -->
+  <div id="modal-login" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-login-title">
+    <div class="modal-backdrop" data-close="modal-login"></div>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="modal-login-title">Sign In</h3>
+        <button type="button" class="icon-btn" data-close="modal-login" aria-label="Close Sign In">✕</button>
+      </div>
+
+      <div class="login-role-switch" role="tablist" aria-label="Select Role">
+        <button type="button" class="login-role-tab active" data-login-role="student">Student</button>
+        <button type="button" class="login-role-tab" data-login-role="teacher">Teacher</button>
+      </div>
+
+      <form id="form-login" class="login-form">
+        <div class="form-field">
+          <label for="login-name" id="login-name-label">Student Name</label>
+          <input type="text" id="login-name" class="form-input" maxlength="40" placeholder="e.g., Tanaka Yuki" required>
+        </div>
+
+        <div class="form-field">
+          <label for="login-code" id="login-code-label">Student ID (Optional)</label>
+          <input type="text" id="login-code" class="form-input" maxlength="24" placeholder="e.g., STU-2026">
+          <p class="login-hint hidden" id="teacher-pin-hint">Demo Teacher Access PIN: <strong>2026</strong></p>
+        </div>
+
+        <p class="login-error hidden" id="login-error" role="alert"></p>
+
+        <div class="login-actions">
+          <button type="button" class="btn btn-outline btn-sm" id="btn-demo-login">One-Tap Demo Login</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-login">Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: MOBILE QUESTION MAP -->
+  <div id="modal-map" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-map-title">
+    <div class="modal-backdrop" data-close="modal-map"></div>
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 id="modal-map-title">Question Navigator</h3>
+        <button type="button" class="icon-btn" data-close="modal-map" aria-label="Close Navigator">✕</button>
+      </div>
+      <div class="map-legend">
+        <span><i class="dot dot-answered"></i> Answered</span>
+        <span><i class="dot dot-flagged"></i> Flagged</span>
+        <span><i class="dot dot-empty"></i> Unanswered</span>
+      </div>
+      <div id="mobile-map-grid" class="map-grid-container modal-scroll"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-block" id="btn-submit-from-map">Finish &amp; Score Exam</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM SUBMIT -->
+  <div id="modal-confirm" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-confirm-title">
+    <div class="modal-backdrop" data-close="modal-confirm"></div>
+    <div class="modal-dialog">
+      <h3 id="modal-confirm-title">Submit Examination?</h3>
+      <p id="confirm-summary-text">Review your progress before submitting.</p>
+      <div class="confirm-stats" id="confirm-stats"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-outline" data-close="modal-confirm">Keep Reviewing</button>
+        <button type="button" class="btn btn-primary" id="btn-confirm-submit">Submit Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EXAM HISTORY -->
+  <div id="modal-history" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-history-title">
+    <div class="modal-backdrop" data-close="modal-history"></div>
+    <div class="modal-dialog modal-dialog-lg">
+      <div class="modal-header">
+        <h3 id="modal-history-title">Examination History</h3>
+        <button type="button" class="icon-btn" data-close="modal-history" aria-label="Close History">✕</button>
+      </div>
+      <div id="history-list" class="history-list modal-scroll"></div>
+      <div class="modal-footer history-footer">
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-clear-history">Clear History</button>
+        <button type="button" class="btn btn-primary btn-sm" data-close="modal-history">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/exam-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
